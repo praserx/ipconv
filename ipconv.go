@@ -8,25 +8,16 @@ import (
 	"net"
 )
 
-// IPConverter definition.
-type IPConverter struct {
-}
-
-// New create new IP converter. There is additional configuration.
-func New() *IPConverter {
-	return &IPConverter{}
-}
-
 // IPv4ToInt converts IP address of version 4 from net.IP to uint32
 // representation.
-func (i *IPConverter) IPv4ToInt(ipaddr net.IP) uint32 {
+func IPv4ToInt(ipaddr net.IP) uint32 {
 	return binary.BigEndian.Uint32(ipaddr.To4())
 }
 
 // IPv6ToInt converts IP address of version 6 from net.IP to uint64 array
 // representation. Return value contains high integer value on the first
 // place and low integer value on second place.
-func (i *IPConverter) IPv6ToInt(ipaddr net.IP) [2]uint64 {
+func IPv6ToInt(ipaddr net.IP) [2]uint64 {
 	// Get two separates values of integer IP
 	ip := [2]uint64{
 		binary.BigEndian.Uint64(ipaddr.To16()[0:8]),  // IP high
@@ -38,7 +29,7 @@ func (i *IPConverter) IPv6ToInt(ipaddr net.IP) [2]uint64 {
 
 // IPv6ToBigInt converts IP address of version 6 from net.IP to math big
 // integer representation.
-func (i *IPConverter) IPv6ToBigInt(ipaddr net.IP) big.Int {
+func IPv6ToBigInt(ipaddr net.IP) big.Int {
 	// Define big int variable
 	var ip big.Int
 
@@ -50,7 +41,7 @@ func (i *IPConverter) IPv6ToBigInt(ipaddr net.IP) big.Int {
 
 // IntToIPv4 converts IP address of version 4 from integer to net.IP
 // representation.
-func (i *IPConverter) IntToIPv4(ipaddr uint32) net.IP {
+func IntToIPv4(ipaddr uint32) net.IP {
 	// Allocate 4 bytes IP
 	ip := make(net.IP, 4)
 
@@ -62,7 +53,7 @@ func (i *IPConverter) IntToIPv4(ipaddr uint32) net.IP {
 
 // IntToIPv6 converts IP address of version 6 from integer (high and low value)
 // to net.IP representation.
-func (i *IPConverter) IntToIPv6(high, low uint64) net.IP {
+func IntToIPv6(high, low uint64) net.IP {
 	// Allocate 16 bytes IP
 	ip := make(net.IP, 16)
 

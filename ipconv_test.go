@@ -15,7 +15,7 @@ func TestIPv4ToInt(t *testing.T) {
 		{net.ParseIP("8.8.8.8"), 134744072},
 		{net.ParseIP("255.255.255.255"), 4294967295},
 	} {
-		got := New().IPv4ToInt(c.in)
+		got := IPv4ToInt(c.in)
 		if got != c.want {
 			t.Errorf("IPv4ToInt(%q) == %q, want %q", c.in, got, c.want)
 		}
@@ -31,7 +31,7 @@ func TestIPv6ToInt(t *testing.T) {
 		{net.ParseIP("0000:0000:0000:0000:0000:0000:0000:1"), [2]uint64{0, 1}},
 		{net.ParseIP("2001:4860:4860::8888"), [2]uint64{2306204062558715904, 34952}},
 	} {
-		got := New().IPv6ToInt(c.in)
+		got := IPv6ToInt(c.in)
 		if got != c.want {
 			t.Errorf("IPv6ToInt(%q) == %q, want %q", c.in.To16(), got, c.want)
 		}
@@ -62,7 +62,7 @@ func TestIntToIPv4(t *testing.T) {
 		{134744072, net.ParseIP("8.8.8.8")},
 		{4294967295, net.ParseIP("255.255.255.255")},
 	} {
-		got := New().IntToIPv4(c.in)
+		got := IntToIPv4(c.in)
 		if !got.Equal(c.want) {
 			t.Errorf("IntToIPv4(%q) == %q, want %q", c.in, got, c.want)
 		}
@@ -78,7 +78,7 @@ func TestIntToIPv6(t *testing.T) {
 		{[2]uint64{0, 1}, net.ParseIP("0000:0000:0000:0000:0000:0000:0000:1")},
 		{[2]uint64{2306204062558715904, 34952}, net.ParseIP("2001:4860:4860::8888")},
 	} {
-		got := New().IntToIPv6(c.in[0], c.in[1])
+		got := IntToIPv6(c.in[0], c.in[1])
 		if !got.Equal(c.want) {
 			t.Errorf("IntToIPv6(%q) == %q, want %q", c.in, got, c.want)
 		}
