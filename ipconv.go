@@ -29,14 +29,14 @@ func IPv6ToInt(ipaddr net.IP) [2]uint64 {
 
 // IPv6ToBigInt converts IP address of version 6 from net.IP to math big
 // integer representation.
-func IPv6ToBigInt(ipaddr net.IP) big.Int {
+func IPv6ToBigInt(ipaddr net.IP) *big.Int {
 	// Define big int variable
 	var ip big.Int
 
 	// Initialize value as bytes
 	ip.SetBytes(ipaddr)
 
-	return ip
+	return &ip
 }
 
 // IntToIPv4 converts IP address of version 4 from integer to net.IP

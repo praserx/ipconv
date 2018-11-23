@@ -1,6 +1,7 @@
 package ipconv
 
 import (
+	"math/big"
 	"net"
 	"testing"
 )
@@ -38,19 +39,19 @@ func TestIPv6ToInt(t *testing.T) {
 	}
 }
 
-// func TestIPv6ToBigInt(t *testing.T) {
-// 	for _, c := range []struct {
-// 		in   net.IP
-// 		want *big.Int
-// 	}{
-// 		{net.ParseIP("2001:0:0:0:0:ffff:c0a8:101"), big.NewInt(42540488161975842760550637899214225665)},
-// 	} {
-// 		got := New().IPv6ToBigInt(c.in)
-// 		if got != c.want {
-// 			t.Errorf("IPv6ToInt(%q) == %q, want %q", c.in.To16(), got, c.want)
-// 		}
-// 	}
-// }
+func TestIPv6ToBigInt(t *testing.T) {
+	for _, c := range []struct {
+		in   net.IP
+		want *big.Int
+	}{
+		{net.ParseIP("2001:0:0:0:0:ffff:c0a8:101"), GetBigInt("42540488161975842760550637899214225665")},
+	} {
+		got := IPv6ToBigInt(c.in)
+		if got.Cmp(c.want) != 0 {
+			t.Errorf("IPv6ToInt(%q) == %q, want %q", c.in.To16(), got, c.want)
+		}
+	}
+}
 
 func TestIntToIPv4(t *testing.T) {
 	for _, c := range []struct {
@@ -83,4 +84,10 @@ func TestIntToIPv6(t *testing.T) {
 			t.Errorf("IntToIPv6(%q) == %q, want %q", c.in, got, c.want)
 		}
 	}
+}
+
+func GetBigInt(bi string) *big.Int {
+	var bigInt = new(big.Int)
+	bigInt.SetString(bi, 10)
+	return bigInt
 }
