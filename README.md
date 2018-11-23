@@ -12,13 +12,13 @@ I hope that it will serve you well.
 package main
 
 import (
-	"fmt"
+    "fmt"
     "net"
     "github.com/PraserX/ipconv"
 )
 
 func main() {
-	var ip = net.ParseIP("192.168.1.1")
-	fmt.Println(ipconv.IPv4ToInt(ip))
+    var ip = net.ParseIP("192.168.1.1")
+    fmt.Println(ipconv.IPv4ToInt(ip))
 }
 ```
