@@ -43,7 +43,7 @@ func IPv6ToBigInt(ipaddr net.IP) *big.Int {
 // representation.
 func IntToIPv4(ipaddr uint32) net.IP {
 	// Allocate 4 bytes IP
-	ip := make(net.IP, 4)
+	ip := make(net.IP, net.IPv4len)
 
 	// Proceed conversion
 	binary.BigEndian.PutUint32(ip, ipaddr)
@@ -55,7 +55,7 @@ func IntToIPv4(ipaddr uint32) net.IP {
 // to net.IP representation.
 func IntToIPv6(high, low uint64) net.IP {
 	// Allocate 16 bytes IP
-	ip := make(net.IP, 16)
+	ip := make(net.IP, net.IPv6len)
 
 	// Allocate 8 bytes arrays for IPs
 	ipHigh := make([]byte, 8)
@@ -65,11 +65,31 @@ func IntToIPv6(high, low uint64) net.IP {
 	binary.BigEndian.PutUint64(ipHigh, high)
 	binary.BigEndian.PutUint64(ipLow, low)
 
-	for i := 0; i < 16; i++ {
+	for i := 0; i < net.IPv6len; i++ {
 		if i < 8 {
 			ip[i] = ipHigh[i]
 		} else if i >= 8 {
 			ip[i] = ipLow[i-8]
+		}
+	}
+
+	return ip
+}
+
+// BigIntToIPv6 converts IP address of version 6 from big integer to net.IP
+// representation.
+func BigIntToIPv6(ipaddr big.Int) net.IP {
+	// Allocate 16 bytes IP
+	ip := make(net.IP, net.IPv6len)
+
+	ipBytes := ipaddr.Bytes()
+	ipBytesLen := len(ipBytes)
+
+	for i := 0; i < net.IPv6len; i++ {
+		if i < net.IPv6len-ipBytesLen {
+			ip[i] = 0x0
+		} else {
+			ip[i] = ipBytes[ipBytesLen-net.IPv6len+i]
 		}
 	}
 
