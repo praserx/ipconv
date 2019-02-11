@@ -30,7 +30,6 @@ func IPv6ToInt(ipaddr net.IP) [2]uint64 {
 // IPv6ToBigInt converts IP address of version 6 from net.IP to math big
 // integer representation.
 func IPv6ToBigInt(ipaddr net.IP) *big.Int {
-	// Define big int variable
 	var ip big.Int
 
 	// Initialize value as bytes
@@ -42,7 +41,6 @@ func IPv6ToBigInt(ipaddr net.IP) *big.Int {
 // IntToIPv4 converts IP address of version 4 from integer to net.IP
 // representation.
 func IntToIPv4(ipaddr uint32) net.IP {
-	// Allocate 4 bytes IP
 	ip := make(net.IP, net.IPv4len)
 
 	// Proceed conversion
@@ -54,7 +52,6 @@ func IntToIPv4(ipaddr uint32) net.IP {
 // IntToIPv6 converts IP address of version 6 from integer (high and low value)
 // to net.IP representation.
 func IntToIPv6(high, low uint64) net.IP {
-	// Allocate 16 bytes IP
 	ip := make(net.IP, net.IPv6len)
 
 	// Allocate 8 bytes arrays for IPs
@@ -79,7 +76,6 @@ func IntToIPv6(high, low uint64) net.IP {
 // BigIntToIPv6 converts IP address of version 6 from big integer to net.IP
 // representation.
 func BigIntToIPv6(ipaddr big.Int) net.IP {
-	// Allocate 16 bytes IP
 	ip := make(net.IP, net.IPv6len)
 
 	ipBytes := ipaddr.Bytes()
