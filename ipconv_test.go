@@ -114,3 +114,21 @@ func GetBigInt(bi string) *big.Int {
 	bigInt.SetString(bi, 10)
 	return bigInt
 }
+
+func TestParseIP(t *testing.T) {
+	for _, c := range []struct {
+		in   string
+		want int
+	}{
+		{"192.168.1.1", 4},
+		{"0.0.0.0", 4},
+		{"0000:0000:0000:0000:0000:0000:0000:0000", 16},
+		{"0000:0000:0000:0000:0000:0000:0000:0001", 16},
+		{"2001:0:0:0:0:ffff:c0a8:101", 16},
+	} {
+		_, gotType := ParseIP(c.in)
+		if gotType != c.want {
+			t.Errorf("ParseIP(%q) == %q, want %q", c.in, gotType, c.want)
+		}
+	}
+}

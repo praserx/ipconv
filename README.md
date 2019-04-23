@@ -2,7 +2,7 @@
 
 # ipconv
 
-This library provides simple conversion between `net.IP` and integer (`net.IP <--> int`).
+This library provides simple conversion between `net.IP` and integer (`net.IP <--> int`). As new feature, library now contains extension of `net.ParseIP` which returns also byte length of IP address on input.
 
 I hope that it will serve you well.
 

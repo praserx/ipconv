@@ -91,3 +91,19 @@ func BigIntToIPv6(ipaddr big.Int) net.IP {
 
 	return ip
 }
+
+// ParseIP implements extension of net.ParseIP. It returns additional
+// information about IP address bytes length. In general, it works typycally
+// as standard net.ParseIP. So if IP is not valid, nil is returned.
+func ParseIP(s string) (net.IP, int) {
+	for i := 0; i < len(s); i++ {
+		switch s[i] {
+		case '.':
+			return net.ParseIP(s), 4
+		case ':':
+			return net.ParseIP(s), 16
+		}
+	}
+
+	return nil, 0
+}
