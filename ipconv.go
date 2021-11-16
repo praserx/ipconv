@@ -4,38 +4,54 @@ package ipconv
 
 import (
 	"encoding/binary"
+	"errors"
 	"math/big"
 	"net"
+	"strings"
 )
+
+var ErrInvalidIPAddress = errors.New("invalid ip address")
+var ErrNotIPv4Address = errors.New("not an IPv4 addres")
+var ErrNotIPv6Address = errors.New("not an IPv6 addres")
 
 // IPv4ToInt converts IP address of version 4 from net.IP to uint32
 // representation.
-func IPv4ToInt(ipaddr net.IP) uint32 {
-	return binary.BigEndian.Uint32(ipaddr.To4())
+func IPv4ToInt(ipaddr net.IP) (uint32, error) {
+	if ipaddr.To4() == nil {
+		return 0, ErrNotIPv4Address
+	}
+	return binary.BigEndian.Uint32(ipaddr.To4()), nil
 }
 
 // IPv6ToInt converts IP address of version 6 from net.IP to uint64 array
 // representation. Return value contains high integer value on the first
 // place and low integer value on second place.
-func IPv6ToInt(ipaddr net.IP) [2]uint64 {
+func IPv6ToInt(ipaddr net.IP) ([2]uint64, error) {
+	if ipaddr.To16()[0:8] == nil || ipaddr.To16()[8:16] == nil {
+		return [2]uint64{0, 0}, ErrNotIPv6Address
+	}
+
 	// Get two separates values of integer IP
 	ip := [2]uint64{
 		binary.BigEndian.Uint64(ipaddr.To16()[0:8]),  // IP high
 		binary.BigEndian.Uint64(ipaddr.To16()[8:16]), // IP low
 	}
 
-	return ip
+	return ip, nil
 }
 
 // IPv6ToBigInt converts IP address of version 6 from net.IP to math big
 // integer representation.
-func IPv6ToBigInt(ipaddr net.IP) *big.Int {
-	var ip big.Int
+func IPv6ToBigInt(ipaddr net.IP) (*big.Int, error) {
+	if ipaddr == nil {
+		return nil, ErrInvalidIPAddress
+	}
 
 	// Initialize value as bytes
+	var ip big.Int
 	ip.SetBytes(ipaddr)
 
-	return &ip
+	return &ip, nil
 }
 
 // IntToIPv4 converts IP address of version 4 from integer to net.IP
@@ -93,17 +109,14 @@ func BigIntToIPv6(ipaddr big.Int) net.IP {
 }
 
 // ParseIP implements extension of net.ParseIP. It returns additional
-// information about IP address bytes length. In general, it works typycally
+// information about IP address bytes length. In general, it works typically
 // as standard net.ParseIP. So if IP is not valid, nil is returned.
-func ParseIP(s string) (net.IP, int) {
-	for i := 0; i < len(s); i++ {
-		switch s[i] {
-		case '.':
-			return net.ParseIP(s), 4
-		case ':':
-			return net.ParseIP(s), 16
-		}
+func ParseIP(s string) (net.IP, int, error) {
+	pip := net.ParseIP(s)
+	if pip == nil {
+		return nil, 0, ErrInvalidIPAddress
+	} else if strings.Contains(s, ".") {
+		return pip, 4, nil
 	}
-
-	return nil, 0
+	return pip, 16, nil
 }
