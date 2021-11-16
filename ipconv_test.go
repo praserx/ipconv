@@ -16,8 +16,22 @@ func TestIPv4ToInt(t *testing.T) {
 		{net.ParseIP("8.8.8.8"), 134744072},
 		{net.ParseIP("255.255.255.255"), 4294967295},
 	} {
-		got := IPv4ToInt(c.in)
-		if got != c.want {
+		got, err := IPv4ToInt(c.in)
+		if got != c.want || err != nil {
+			t.Errorf("IPv4ToInt(%q) == %q, want %q", c.in, got, c.want)
+		}
+	}
+}
+
+func TestIPv4ToIntError(t *testing.T) {
+	for _, c := range []struct {
+		in   net.IP
+		want uint32
+	}{
+		{net.ParseIP("google.com"), 0},
+	} {
+		got, err := IPv4ToInt(c.in)
+		if err == nil {
 			t.Errorf("IPv4ToInt(%q) == %q, want %q", c.in, got, c.want)
 		}
 	}
@@ -32,8 +46,8 @@ func TestIPv6ToInt(t *testing.T) {
 		{net.ParseIP("0000:0000:0000:0000:0000:0000:0000:1"), [2]uint64{0, 1}},
 		{net.ParseIP("2001:4860:4860::8888"), [2]uint64{2306204062558715904, 34952}},
 	} {
-		got := IPv6ToInt(c.in)
-		if got != c.want {
+		got, err := IPv6ToInt(c.in)
+		if got != c.want || err != nil {
 			t.Errorf("IPv6ToInt(%q) == %q, want %q", c.in.To16(), got, c.want)
 		}
 	}
@@ -49,8 +63,8 @@ func TestIPv6ToBigInt(t *testing.T) {
 		{net.ParseIP("2001:0:0:0:0:ffff:c0a8:101"), GetBigInt("42540488161975842760550637899214225665")},
 		{net.ParseIP("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"), GetBigInt("340282366920938463463374607431768211455")},
 	} {
-		got := IPv6ToBigInt(c.in)
-		if got.Cmp(c.want) != 0 {
+		got, err := IPv6ToBigInt(c.in)
+		if got.Cmp(c.want) != 0 || err != nil {
 			t.Errorf("IPv6ToInt(%q) == %q, want %q", c.in.To16(), got, c.want)
 		}
 	}
@@ -109,12 +123,6 @@ func TestBigIntToIPv6(t *testing.T) {
 	}
 }
 
-func GetBigInt(bi string) *big.Int {
-	var bigInt = new(big.Int)
-	bigInt.SetString(bi, 10)
-	return bigInt
-}
-
 func TestParseIP(t *testing.T) {
 	for _, c := range []struct {
 		in   string
@@ -126,9 +134,29 @@ func TestParseIP(t *testing.T) {
 		{"0000:0000:0000:0000:0000:0000:0000:0001", 16},
 		{"2001:0:0:0:0:ffff:c0a8:101", 16},
 	} {
-		_, gotType := ParseIP(c.in)
-		if gotType != c.want {
+		_, gotType, err := ParseIP(c.in)
+		if gotType != c.want || err != nil {
 			t.Errorf("ParseIP(%q) == %q, want %q", c.in, gotType, c.want)
 		}
 	}
+}
+
+func TestParseIPError(t *testing.T) {
+	for _, c := range []struct {
+		in   string
+		want int
+	}{
+		{"google.com", 0},
+	} {
+		_, gotType, err := ParseIP(c.in)
+		if gotType != c.want || err == nil {
+			t.Errorf("ParseIP(%q) == %q, want %q", c.in, gotType, c.want)
+		}
+	}
+}
+
+func GetBigInt(bi string) *big.Int {
+	var bigInt = new(big.Int)
+	bigInt.SetString(bi, 10)
+	return bigInt
 }
