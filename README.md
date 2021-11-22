@@ -12,7 +12,7 @@ package main
 import (
     "fmt"
     "net"
-    "github.com/PraserX/ipconv"
+    "github.com/praserx/ipconv"
 )
 
 func main() {
