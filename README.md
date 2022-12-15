@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-    if ip, version, err := net.ParseIP("192.168.1.1"); err != nil && version == 4 {
+    if ip, version, err := ipconv.ParseIP("192.168.1.1"); err != nil && version == 4 {
         fmt.Println(ipconv.IPv4ToInt(ip))
     }
 }
