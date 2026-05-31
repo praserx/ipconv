@@ -54,7 +54,7 @@ func IPv6ToBigInt(ipaddr net.IP) (*big.Int, error) {
 	}
 
 	ip16 := ipaddr.To16()
-	if ip16 == nil {
+	if ip16 == nil || ip16.To4() != nil {
 		return nil, ErrNotIPv6Address
 	}
 
