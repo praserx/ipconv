@@ -33,7 +33,7 @@ func IPv6ToInt(ipaddr net.IP) ([2]uint64, error) {
 	}
 
 	ip16 := ipaddr.To16()
-	if ip16 == nil {
+	if ip16 == nil || ip16.To4() != nil {
 		return [2]uint64{0, 0}, ErrNotIPv6Address
 	}
 
