@@ -81,7 +81,7 @@ func IntToIPv4(ipaddr uint32) net.IP {
 func IntToIPv6(high, low uint64) net.IP {
 	ip := make(net.IP, net.IPv6len)
 
-	// Direct zero-allocation write via standard library binary package.
+	// Direct write to the target slice (no extra temporary allocations).
 	binary.BigEndian.PutUint64(ip[0:8], high)
 	binary.BigEndian.PutUint64(ip[8:16], low)
 
