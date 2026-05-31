@@ -7,7 +7,7 @@
     * Write directly to the target slice in IntToIPv6 to eliminate extra allocations
     * Use big.Int.FillBytes in BigIntToIPv6 for cleaner, faster conversions
     * Bump Go version to 1.22 in go.mod
-    * Update GitHub Actions configuration to test against Go 1.21, 1.22, and 1.23
+    * Update GitHub Actions configuration to test against Go 1.22 and 1.23
 2. [](#bugfix)
     * Fix typos ("addres" -> "address") in ErrNotIPv4Address and ErrNotIPv6Address messages
     * Fix compiling and runtime errors in README.md example code
