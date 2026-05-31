@@ -11,8 +11,8 @@ import (
 )
 
 var ErrInvalidIPAddress = errors.New("invalid ip address")
-var ErrNotIPv4Address = errors.New("not an IPv4 addres")
-var ErrNotIPv6Address = errors.New("not an IPv6 addres")
+var ErrNotIPv4Address = errors.New("not an IPv4 address")
+var ErrNotIPv6Address = errors.New("not an IPv6 address")
 
 // IPv4ToInt converts IP address of version 4 from net.IP to uint32
 // representation.
@@ -27,14 +27,19 @@ func IPv4ToInt(ipaddr net.IP) (uint32, error) {
 // representation. Return value contains high integer value on the first
 // place and low integer value on second place.
 func IPv6ToInt(ipaddr net.IP) ([2]uint64, error) {
-	if ipaddr.To16()[0:8] == nil || ipaddr.To16()[8:16] == nil {
+	if ipaddr == nil {
+		return [2]uint64{0, 0}, ErrInvalidIPAddress
+	}
+
+	ip16 := ipaddr.To16()
+	if ip16 == nil {
 		return [2]uint64{0, 0}, ErrNotIPv6Address
 	}
 
 	// Get two separates values of integer IP
 	ip := [2]uint64{
-		binary.BigEndian.Uint64(ipaddr.To16()[0:8]),  // IP high
-		binary.BigEndian.Uint64(ipaddr.To16()[8:16]), // IP low
+		binary.BigEndian.Uint64(ip16[0:8]),  // IP high
+		binary.BigEndian.Uint64(ip16[8:16]), // IP low
 	}
 
 	return ip, nil
@@ -47,9 +52,14 @@ func IPv6ToBigInt(ipaddr net.IP) (*big.Int, error) {
 		return nil, ErrInvalidIPAddress
 	}
 
+	ip16 := ipaddr.To16()
+	if ip16 == nil {
+		return nil, ErrNotIPv6Address
+	}
+
 	// Initialize value as bytes
 	var ip big.Int
-	ip.SetBytes(ipaddr)
+	ip.SetBytes(ip16)
 
 	return &ip, nil
 }
@@ -115,8 +125,9 @@ func ParseIP(s string) (net.IP, int, error) {
 	pip := net.ParseIP(s)
 	if pip == nil {
 		return nil, 0, ErrInvalidIPAddress
-	} else if strings.Contains(s, ".") {
-		return pip, 4, nil
 	}
-	return pip, 16, nil
+	if strings.Contains(s, ":") {
+		return pip, 16, nil
+	}
+	return pip, 4, nil
 }
