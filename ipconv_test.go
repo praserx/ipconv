@@ -70,6 +70,36 @@ func TestIPv6ToBigInt(t *testing.T) {
 	}
 }
 
+func TestIPv6ToIntError(t *testing.T) {
+	for _, c := range []struct {
+		in      net.IP
+		wantErr error
+	}{
+		{nil, ErrInvalidIPAddress},
+		{net.IP{1, 2, 3}, ErrNotIPv6Address},
+	} {
+		got, err := IPv6ToInt(c.in)
+		if err == nil || err != c.wantErr {
+			t.Errorf("IPv6ToInt(%q) == %v, %v, want error %v", c.in, got, err, c.wantErr)
+		}
+	}
+}
+
+func TestIPv6ToBigIntError(t *testing.T) {
+	for _, c := range []struct {
+		in      net.IP
+		wantErr error
+	}{
+		{nil, ErrInvalidIPAddress},
+		{net.IP{1, 2, 3}, ErrNotIPv6Address},
+	} {
+		got, err := IPv6ToBigInt(c.in)
+		if err == nil || err != c.wantErr {
+			t.Errorf("IPv6ToBigInt(%q) == %v, %v, want error %v", c.in, got, err, c.wantErr)
+		}
+	}
+}
+
 func TestIntToIPv4(t *testing.T) {
 	for _, c := range []struct {
 		in   uint32
@@ -159,4 +189,18 @@ func GetBigInt(bi string) *big.Int {
 	var bigInt = new(big.Int)
 	bigInt.SetString(bi, 10)
 	return bigInt
+}
+
+func BenchmarkIntToIPv6(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_ = IntToIPv6(2306204062558715904, 34952)
+	}
+}
+
+func BenchmarkBigIntToIPv6(b *testing.B) {
+	bigInt := GetBigInt("42540488161975842760550637899214225665")
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = BigIntToIPv6(*bigInt)
+	}
 }

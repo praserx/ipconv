@@ -11,30 +11,36 @@ import (
 )
 
 var ErrInvalidIPAddress = errors.New("invalid ip address")
-var ErrNotIPv4Address = errors.New("not an IPv4 addres")
-var ErrNotIPv6Address = errors.New("not an IPv6 addres")
+var ErrNotIPv4Address = errors.New("not an IPv4 address")
+var ErrNotIPv6Address = errors.New("not an IPv6 address")
 
 // IPv4ToInt converts IP address of version 4 from net.IP to uint32
 // representation.
 func IPv4ToInt(ipaddr net.IP) (uint32, error) {
-	if ipaddr.To4() == nil {
+	ip4 := ipaddr.To4()
+	if ip4 == nil {
 		return 0, ErrNotIPv4Address
 	}
-	return binary.BigEndian.Uint32(ipaddr.To4()), nil
+	return binary.BigEndian.Uint32(ip4), nil
 }
 
 // IPv6ToInt converts IP address of version 6 from net.IP to uint64 array
 // representation. Return value contains high integer value on the first
 // place and low integer value on second place.
 func IPv6ToInt(ipaddr net.IP) ([2]uint64, error) {
-	if ipaddr.To16()[0:8] == nil || ipaddr.To16()[8:16] == nil {
+	if ipaddr == nil {
+		return [2]uint64{0, 0}, ErrInvalidIPAddress
+	}
+
+	ip16 := ipaddr.To16()
+	if ip16 == nil || ip16.To4() != nil {
 		return [2]uint64{0, 0}, ErrNotIPv6Address
 	}
 
 	// Get two separates values of integer IP
 	ip := [2]uint64{
-		binary.BigEndian.Uint64(ipaddr.To16()[0:8]),  // IP high
-		binary.BigEndian.Uint64(ipaddr.To16()[8:16]), // IP low
+		binary.BigEndian.Uint64(ip16[0:8]),  // IP high
+		binary.BigEndian.Uint64(ip16[8:16]), // IP low
 	}
 
 	return ip, nil
@@ -47,9 +53,14 @@ func IPv6ToBigInt(ipaddr net.IP) (*big.Int, error) {
 		return nil, ErrInvalidIPAddress
 	}
 
+	ip16 := ipaddr.To16()
+	if ip16 == nil || ip16.To4() != nil {
+		return nil, ErrNotIPv6Address
+	}
+
 	// Initialize value as bytes
 	var ip big.Int
-	ip.SetBytes(ipaddr)
+	ip.SetBytes(ip16)
 
 	return &ip, nil
 }
@@ -70,21 +81,9 @@ func IntToIPv4(ipaddr uint32) net.IP {
 func IntToIPv6(high, low uint64) net.IP {
 	ip := make(net.IP, net.IPv6len)
 
-	// Allocate 8 bytes arrays for IPs
-	ipHigh := make([]byte, 8)
-	ipLow := make([]byte, 8)
-
-	// Proceed conversion
-	binary.BigEndian.PutUint64(ipHigh, high)
-	binary.BigEndian.PutUint64(ipLow, low)
-
-	for i := 0; i < net.IPv6len; i++ {
-		if i < 8 {
-			ip[i] = ipHigh[i]
-		} else if i >= 8 {
-			ip[i] = ipLow[i-8]
-		}
-	}
+	// Direct write to the target slice (no extra temporary allocations).
+	binary.BigEndian.PutUint64(ip[0:8], high)
+	binary.BigEndian.PutUint64(ip[8:16], low)
 
 	return ip
 }
@@ -93,18 +92,13 @@ func IntToIPv6(high, low uint64) net.IP {
 // representation.
 func BigIntToIPv6(ipaddr big.Int) net.IP {
 	ip := make(net.IP, net.IPv6len)
-
-	ipBytes := ipaddr.Bytes()
-	ipBytesLen := len(ipBytes)
-
-	for i := 0; i < net.IPv6len; i++ {
-		if i < net.IPv6len-ipBytesLen {
-			ip[i] = 0x0
-		} else {
-			ip[i] = ipBytes[ipBytesLen-net.IPv6len+i]
-		}
+	if ipaddr.BitLen() > 128 {
+		var mask big.Int
+		mask.SetBit(&mask, 128, 1)
+		mask.Sub(&mask, big.NewInt(1))
+		ipaddr.And(&ipaddr, &mask)
 	}
-
+	ipaddr.FillBytes(ip)
 	return ip
 }
 
@@ -115,8 +109,9 @@ func ParseIP(s string) (net.IP, int, error) {
 	pip := net.ParseIP(s)
 	if pip == nil {
 		return nil, 0, ErrInvalidIPAddress
-	} else if strings.Contains(s, ".") {
-		return pip, 4, nil
 	}
-	return pip, 16, nil
+	if strings.Contains(s, ":") {
+		return pip, 16, nil
+	}
+	return pip, 4, nil
 }

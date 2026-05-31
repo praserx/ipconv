@@ -1,3 +1,17 @@
+# v1.3.0
+## 31-05-2026
+
+1. [](#new)
+    * Fix crash in IPv6ToInt and IPv6ToBigInt when given nil or invalid IP addresses
+    * Cache To4() result in IPv4ToInt to avoid scanning twice
+    * Write directly to the target slice in IntToIPv6 to eliminate extra allocations
+    * Use big.Int.FillBytes in BigIntToIPv6 for cleaner, faster conversions
+    * Bump Go version to 1.22 in go.mod
+    * Update GitHub Actions configuration to test against Go 1.22 and 1.23
+2. [](#bugfix)
+    * Fix typos ("addres" -> "address") in ErrNotIPv4Address and ErrNotIPv6Address messages
+    * Fix compiling and runtime errors in README.md example code
+
 # v1.2.2
 ## 25-07-2024
 

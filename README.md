@@ -11,13 +11,14 @@ package main
 
 import (
     "fmt"
-    "net"
     "github.com/praserx/ipconv"
 )
 
 func main() {
-    if ip, version, err := ipconv.ParseIP("192.168.1.1"); err != nil && version == 4 {
-        fmt.Println(ipconv.IPv4ToInt(ip))
+    ip, version, err := ipconv.ParseIP("192.168.1.1")
+    if err == nil && version == 4 {
+        val, _ := ipconv.IPv4ToInt(ip)
+        fmt.Println(val)
     }
 }
 ```
