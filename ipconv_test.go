@@ -190,3 +190,17 @@ func GetBigInt(bi string) *big.Int {
 	bigInt.SetString(bi, 10)
 	return bigInt
 }
+
+func BenchmarkIntToIPv6(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_ = IntToIPv6(2306204062558715904, 34952)
+	}
+}
+
+func BenchmarkBigIntToIPv6(b *testing.B) {
+	bigInt := GetBigInt("42540488161975842760550637899214225665")
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = BigIntToIPv6(*bigInt)
+	}
+}
