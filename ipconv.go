@@ -92,6 +92,12 @@ func IntToIPv6(high, low uint64) net.IP {
 // representation.
 func BigIntToIPv6(ipaddr big.Int) net.IP {
 	ip := make(net.IP, net.IPv6len)
+	if ipaddr.BitLen() > 128 {
+		var mask big.Int
+		mask.SetBit(&mask, 128, 1)
+		mask.Sub(&mask, big.NewInt(1))
+		ipaddr.And(&ipaddr, &mask)
+	}
 	ipaddr.FillBytes(ip)
 	return ip
 }
